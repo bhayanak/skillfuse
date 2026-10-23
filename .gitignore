@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+junit.xml
+
+# SkillChain artefacts
+*.sarif
+skillchain.lock
+.skillchain-keys/
+skillchain-report.json
+skill.tar.gz
+
+# Editors / OS
+.DS_Store
+.idea/
+*.swp
+
+# Local scratch
+plan/
+.temp/

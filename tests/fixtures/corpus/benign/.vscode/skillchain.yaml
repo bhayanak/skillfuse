@@ -1,0 +1,10 @@
+# Capability manifest for the MCP servers declared in mcp.json
+name: mcp.json
+publisher: example-corp
+capabilities:
+  - mcp.server
+  - process.spawn
+  - package.install
+  - network.egress
+  - env.read
+  - secrets.read

@@ -1,0 +1,22 @@
+# Custom rule pack example — load with `rules_dirs: ["./examples/custom-rules"]`.
+rules:
+  - id: SC-ACME-001
+    title: Internal hostname referenced
+    description: Skills published externally must not reference internal infrastructure.
+    severity: medium
+    confidence: deterministic
+    category: network
+    applies_to: [instructions, script, config]
+    patterns:
+      - '\b[a-z0-9-]+\.corp\.acme\.internal\b'
+    message: "Internal host {match}"
+    remediation: Use the public API gateway instead.
+    capabilities: [network.egress]
+
+  - id: SC-ACME-002
+    title: Deprecated deploy tool
+    severity: low
+    confidence: deterministic
+    category: dependency
+    patterns: ['\bacme-deploy\s+v1\b']
+    remediation: Migrate to acme-deploy v2.

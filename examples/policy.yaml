@@ -1,0 +1,56 @@
+# Example SkillChain policy for an enterprise registry.
+#
+# Decisions: allow < quarantine < block. The strictest matching action wins unless a rule is `final`.
+# Heuristic findings never block unless `heuristic_can_block: true`.
+version: 1
+name: acme-registry
+default: quarantine          # unknown skills land in review by default
+heuristic_can_block: false
+
+publishers:
+  allow: ["acme-platform-*", "security-team"]
+  block: ["*-untrusted", "anon*"]
+
+capabilities:
+  deny: ["system.persistence", "ssh.exec"]
+  quarantine: ["system.admin", "cloud.write", "database.write"]
+
+rule_ids:
+  block: ["SC-SH-007", "SC-DYN-001", "SC-EXF-003"]
+  quarantine: ["SC-PI-*"]
+  ignore: ["SC-NET-004"]      # we don't care about TLD reputation
+
+rules:
+  - name: trusted-signed-publisher
+    action: allow
+    final: true
+    when:
+      publisher: ["acme-platform-*"]
+      signed: true
+      findings:
+        min_severity: critical
+        min_count: 1
+    message: "Trusted publisher; still visible in reports but never blocked"
+
+  - name: block-deterministic-critical
+    action: block
+    when:
+      findings: { min_severity: critical, confidence: deterministic }
+
+  - name: block-unsigned-exec
+    action: block
+    when:
+      signed: false
+      capabilities: { any: ["shell.exec", "process.spawn"] }
+    message: "Skills that execute code must be signed"
+
+  - name: quarantine-undeclared-write
+    action: quarantine
+    when:
+      undeclared_capabilities: ["filesystem.write", "filesystem.delete", "network.egress", "git.write", "jira.write"]
+
+  - name: read-only-agents-are-fine
+    action: allow
+    when:
+      kinds: [agent, prompt, instructions]
+      capabilities: { none: ["shell.exec", "filesystem.write", "filesystem.delete", "network.egress"] }

@@ -1,0 +1,16 @@
+.git
+.venv
+.mypy_cache
+.ruff_cache
+.pytest_cache
+__pycache__
+*.pyc
+dist
+build
+htmlcov
+.coverage
+coverage.xml
+*.sarif
+skillchain.lock
+.skillchain-keys
+glp-design-workflow

@@ -1,0 +1,108 @@
+name: "SkillChain – scan agent skills"
+description: "Scan AI agent skills (SKILL.md, agents, prompts, MCP configs) for prompt injection, hidden content, exfiltration, tool overreach and capability drift. Produces SARIF and gates CI."
+author: "SkillChain contributors"
+branding:
+  icon: "shield"
+  color: "purple"
+
+inputs:
+  path:
+    description: "File or directory to scan"
+    required: false
+    default: "."
+  version:
+    description: "SkillChain version to install (PyPI spec), or 'local' to install from the checked-out repository"
+    required: false
+    default: "local"
+  policy:
+    description: "Path to a policy YAML (defaults to the built-in policy)"
+    required: false
+    default: ""
+  config:
+    description: "Path to .skillchain.yaml"
+    required: false
+    default: ""
+  fail-on:
+    description: "Deterministic finding severity that fails the job: critical | high | medium | low | info"
+    required: false
+    default: "high"
+  fail-on-heuristic:
+    description: "Let heuristic findings fail the job too"
+    required: false
+    default: "false"
+  fail-on-quarantine:
+    description: "Fail when policy quarantines a skill"
+    required: false
+    default: "false"
+  lock:
+    description: "Path to skillchain.lock to verify against (auto-detected if present)"
+    required: false
+    default: ""
+  require-lock:
+    description: "Fail when a skill is not in the lockfile"
+    required: false
+    default: "false"
+  detonate:
+    description: "Also run scripts in the sandbox"
+    required: false
+    default: "false"
+  sarif:
+    description: "Where to write SARIF"
+    required: false
+    default: "skillchain.sarif"
+  upload-sarif:
+    description: "Upload SARIF to GitHub code scanning (requires security-events: write)"
+    required: false
+    default: "true"
+
+outputs:
+  exit-code:
+    description: "0 ok · 1 findings over threshold · 2 policy block · 3 quarantine · 4 lock drift · 10 error"
+    value: ${{ steps.run.outputs.exit-code }}
+  findings:
+    description: "Total number of findings"
+    value: ${{ steps.run.outputs.findings }}
+  blocked:
+    description: "Number of blocked skills"
+    value: ${{ steps.run.outputs.blocked }}
+  sarif:
+    description: "Path to the SARIF file"
+    value: ${{ steps.run.outputs.sarif }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: astral-sh/setup-uv@v5
+    - name: Install SkillChain
+      shell: bash
+      run: |
+        if [ "${{ inputs.version }}" = "local" ]; then
+          uv tool install --from "${{ github.action_path }}" skillchain
+        else
+          uv tool install "skillchain==${{ inputs.version }}"
+        fi
+        skillchain --version
+    - name: Run SkillChain CI gate
+      id: run
+      shell: bash
+      run: |
+        set +e
+        args=("${{ inputs.path }}" --sarif "${{ inputs.sarif }}" --fail-on "${{ inputs.fail-on }}")
+        [ -n "${{ inputs.policy }}" ] && args+=(--policy "${{ inputs.policy }}")
+        [ -n "${{ inputs.config }}" ] && args+=(--config "${{ inputs.config }}")
+        [ -n "${{ inputs.lock }}" ] && args+=(--lock "${{ inputs.lock }}")
+        [ "${{ inputs.fail-on-heuristic }}" = "true" ] && args+=(--fail-on-heuristic)
+        [ "${{ inputs.fail-on-quarantine }}" = "true" ] && args+=(--fail-on-quarantine)
+        [ "${{ inputs.require-lock }}" = "true" ] && args+=(--require-lock)
+        [ "${{ inputs.detonate }}" = "true" ] && args+=(--detonate)
+        skillchain ci "${args[@]}"
+        code=$?
+        echo "exit-code=$code" >> "$GITHUB_OUTPUT"
+        grep -q '^exit-code=' "$GITHUB_OUTPUT" || true
+        exit $code
+    - name: Upload SARIF
+      if: always() && inputs.upload-sarif == 'true' && hashFiles(inputs.sarif) != ''
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: ${{ inputs.sarif }}
+        category: skillchain

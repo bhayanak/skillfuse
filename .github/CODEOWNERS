@@ -1,0 +1,10 @@
+# Default owners for everything
+*                       @skillchain-dev/maintainers
+
+# Security-sensitive areas require a second pair of eyes
+/src/skillchain/rules/      @skillchain-dev/maintainers @skillchain-dev/security
+/src/skillchain/sandbox/    @skillchain-dev/maintainers @skillchain-dev/security
+/src/skillchain/signing/    @skillchain-dev/maintainers @skillchain-dev/security
+/src/skillchain/broker/     @skillchain-dev/maintainers @skillchain-dev/security
+/.github/workflows/         @skillchain-dev/maintainers @skillchain-dev/security
+/action.yml                 @skillchain-dev/maintainers @skillchain-dev/security
