@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from skillchain.core.models import FileKind, SkillKind
-from skillchain.formats import (
+from skillfuse.core.models import FileKind, SkillKind
+from skillfuse.formats import (
     McpServer,
     classify,
     discover_packages,
@@ -12,7 +12,7 @@ from skillchain.formats import (
     read_skill_file,
     split_frontmatter,
 )
-from skillchain.formats.base import is_probably_binary
+from skillfuse.formats.base import is_probably_binary
 
 
 class TestFrontmatter:
@@ -187,21 +187,21 @@ class TestDiscovery:
         assert pkgs[0].kind == SkillKind.UNKNOWN
         assert pkgs[0].entrypoint == "notes.md"
 
-    def test_skillchain_yaml_manifest(self, tmp_path: Path) -> None:
+    def test_skillfuse_yaml_manifest(self, tmp_path: Path) -> None:
         root = tmp_path / "s"
         root.mkdir()
         (root / "SKILL.md").write_text("---\nname: s\n---\nx")
-        (root / "skillchain.yaml").write_text(
+        (root / "skillfuse.yaml").write_text(
             "publisher: acme\nversion: '2'\ncapabilities: [network.egress]\n"
         )
         pkg = discover_packages(root)[0]
         assert pkg.publisher == "acme"
         assert pkg.version == "2"
-        assert pkg.metadata["__skillchain_manifest__"]["capabilities"] == ["network.egress"]
+        assert pkg.metadata["__skillfuse_manifest__"]["capabilities"] == ["network.egress"]
 
     def test_unreadable_manifest_ignored(self, tmp_path: Path) -> None:
         root = tmp_path / "s"
         root.mkdir()
         (root / "SKILL.md").write_text("---\nname: s\n---\nx")
-        (root / "skillchain.yaml").write_text(": : [")
-        assert "__skillchain_manifest__" not in discover_packages(root)[0].metadata
+        (root / "skillfuse.yaml").write_text(": : [")
+        assert "__skillfuse_manifest__" not in discover_packages(root)[0].metadata

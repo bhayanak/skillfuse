@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       dry-run:
-        description: "Build and attest without publishing"
+        description: "Build, sign and attest without publishing to PyPI/GHCR"
         type: boolean
         default: true
 
@@ -16,6 +16,8 @@ permissions:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  # Publish on tag pushes, or on a manual run with dry-run unticked.
+  PUBLISH: ${{ startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && inputs.dry-run == false) }}
 
 jobs:
   build:
@@ -24,6 +26,7 @@ jobs:
     outputs:
       hashes: ${{ steps.hash.outputs.hashes }}
       version: ${{ steps.version.outputs.version }}
+      publish: ${{ env.PUBLISH }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,17 +38,18 @@ jobs:
       - name: Verify tag matches package version
         id: version
         run: |
-          v=$(uv run --no-project python -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          v=$(python3 -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
           echo "version=$v" >> "$GITHUB_OUTPUT"
           if [[ "${GITHUB_REF}" == refs/tags/* && "${GITHUB_REF#refs/tags/v}" != "$v" ]]; then
             echo "::error::tag ${GITHUB_REF#refs/tags/} does not match pyproject version $v"; exit 1; fi
+          echo "publish=${PUBLISH}"
       - run: uv sync --all-extras
       - run: uv run pytest -q -m "not slow"
       - run: SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) uv build
       - name: Generate SBOM (CycloneDX)
         run: |
           uv pip install cyclonedx-bom
-          uv run cyclonedx-py environment --output-format JSON --outfile dist/skillchain-${{ steps.version.outputs.version }}.cdx.json || true
+          uv run cyclonedx-py environment --output-format JSON --outfile dist/skillfuse-${{ steps.version.outputs.version }}.cdx.json || true
       - name: Hashes for SLSA provenance
         id: hash
         run: |
@@ -85,7 +89,7 @@ jobs:
       - uses: sigstore/gh-action-sigstore-python@v3.0.0
         with:
           inputs: ./dist/*.whl ./dist/*.tar.gz ./dist/SHA256SUMS
-          release-signing-artifacts: ${{ startsWith(github.ref, 'refs/tags/') }}
+          release-signing-artifacts: false
       - uses: actions/upload-artifact@v4
         with:
           name: dist-signed
@@ -93,12 +97,12 @@ jobs:
 
   publish-pypi:
     name: Publish to PyPI (trusted publishing)
-    if: startsWith(github.ref, 'refs/tags/') && !inputs.dry-run
+    if: needs.build.outputs.publish == 'true'
     needs: [build, provenance, sign]
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/skillchain
+      url: https://pypi.org/p/skillfuse
     permissions:
       id-token: write
     steps:
@@ -113,7 +117,7 @@ jobs:
 
   publish-image:
     name: Publish container image
-    if: startsWith(github.ref, 'refs/tags/') && !inputs.dry-run
+    if: needs.build.outputs.publish == 'true'
     needs: [build]
     runs-on: ubuntu-latest
     permissions:
@@ -138,6 +142,7 @@ jobs:
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=${{ needs.build.outputs.version }},enable=${{ !startsWith(github.ref, 'refs/tags/') }}
             type=sha
       - id: push
         uses: docker/build-push-action@v6

@@ -19,7 +19,7 @@ flowchart LR
   F --> REP[reporters: console · json · markdown · SARIF]
   F --> POL[policy engine / OPA]
   POL --> V[allow · quarantine · block]
-  V --> L[skillchain.lock]
+  V --> L[skillfuse.lock]
   V --> S[sign: digest → DSSE → transparency log]
   L --> B[MCP broker: per-call permission + drift]
   V --> CI[ci gate: exit code · annotations · SARIF upload]
@@ -31,7 +31,7 @@ flowchart LR
 |---|---|---|
 | `core.models` | Frozen pydantic models shared everywhere | `Finding`, `Severity`, `Confidence`, `SkillPackage`, `SkillScan`, `ScanResult`, `CapabilityManifest`, `PolicyVerdict` |
 | `core.hashing` | Deterministic tree digest (sorted POSIX paths, content, exec bit; no mtimes) | `tree_digest()` |
-| `core.config` | `.skillchain.yaml` | `ScanConfig` |
+| `core.config` | `.skillfuse.yaml` | `ScanConfig` |
 | `formats.discovery` | Finds packages; table-driven by filename/suffix | `discover_packages()` |
 | `formats.base` | Frontmatter split, binary detection, script/config/instruction classification | `read_skill_file()` |
 | `formats.configs` | JSONC parsing, MCP server dialect normalisation | `McpServer`, `extract_mcp_servers()` |
@@ -49,7 +49,7 @@ flowchart LR
 | `lockfile.lock` | Lock schema, generation, verification | `Lockfile`, `verify_lock()` |
 | `broker.proxy` | JSON-RPC stdio proxy with decisions, audit, drift | `Broker`, `decide()` |
 | `ci.gate` | Exit-code contract, GitHub annotations/outputs | `evaluate_gate()` |
-| `cli.app` | Typer application | `skillchain` |
+| `cli.app` | Typer application | `skillfuse` |
 
 ## Data flow guarantees
 

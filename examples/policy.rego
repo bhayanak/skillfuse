@@ -1,7 +1,7 @@
 # Example OPA/Rego policy. Evaluate with:
-#   skillchain scan ./skills --rego examples/policy.rego
-# The input document is the per-skill JSON from `skillchain scan -f json` plus `signed` / `in_lock`.
-package skillchain
+#   skillfuse scan ./skills --rego examples/policy.rego
+# The input document is the per-skill JSON from `skillfuse scan -f json` plus `signed` / `in_lock`.
+package skillfuse
 
 import rego.v1
 

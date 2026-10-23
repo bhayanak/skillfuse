@@ -7,9 +7,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from skillchain.capabilities.manifest import MANIFEST_RULE_IDS
-from skillchain.rules import default_registry
-from skillchain.sandbox.detonate import DYN_RULES
+from skillfuse.capabilities.manifest import MANIFEST_RULE_IDS
+from skillfuse.rules import default_registry
+from skillfuse.sandbox.detonate import DYN_RULES
 
 
 def main() -> None:

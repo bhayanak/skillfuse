@@ -9,16 +9,16 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv venv /opt/venv && uv pip install --python /opt/venv/bin/python .
 
 FROM python:3.12-slim
-LABEL org.opencontainers.image.title="SkillChain" \
+LABEL org.opencontainers.image.title="SkillFuse" \
       org.opencontainers.image.description="Supply-chain security for AI agent skills" \
-      org.opencontainers.image.source="https://github.com/skillchain-dev/skillchain" \
+      org.opencontainers.image.source="https://github.com/bhayanak/skillfuse" \
       org.opencontainers.image.licenses="Apache-2.0"
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates git \
     && rm -rf /var/lib/apt/lists/* \
-    && useradd --create-home --uid 10001 skillchain
+    && useradd --create-home --uid 10001 skillfuse
 COPY --from=build /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH" PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
-USER skillchain
+USER skillfuse
 WORKDIR /src
-ENTRYPOINT ["skillchain"]
+ENTRYPOINT ["skillfuse"]
 CMD ["--help"]

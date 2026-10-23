@@ -3,14 +3,14 @@ requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
 
 [project]
-name = "skillchain"
+name = "skillfuse"
 version = "0.1.0"
 description = "Supply-chain security for AI agent skills: scan, infer capabilities, detonate, sign, lock, and broker."
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"
-authors = [{ name = "SkillChain contributors" }]
+authors = [{ name = "SkillFuse contributors" }]
 keywords = ["ai", "agents", "skills", "mcp", "supply-chain", "security", "sarif", "sigstore", "prompt-injection"]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -39,14 +39,14 @@ dependencies = [
 sigstore = ["sigstore>=3.5"]
 
 [project.scripts]
-skillchain = "skillchain.cli.app:main"
+skillfuse = "skillfuse.cli.app:main"
 
 [project.urls]
-Homepage = "https://github.com/skillchain-dev/skillchain"
-Documentation = "https://github.com/skillchain-dev/skillchain/tree/main/docs"
-Changelog = "https://github.com/skillchain-dev/skillchain/blob/main/CHANGELOG.md"
-Issues = "https://github.com/skillchain-dev/skillchain/issues"
-Security = "https://github.com/skillchain-dev/skillchain/blob/main/SECURITY.md"
+Homepage = "https://github.com/bhayanak/skillfuse"
+Documentation = "https://github.com/bhayanak/skillfuse/tree/main/docs"
+Changelog = "https://github.com/bhayanak/skillfuse/blob/main/CHANGELOG.md"
+Issues = "https://github.com/bhayanak/skillfuse/issues"
+Security = "https://github.com/bhayanak/skillfuse/blob/main/SECURITY.md"
 
 [dependency-groups]
 dev = [
@@ -60,10 +60,10 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/skillchain"]
+packages = ["src/skillfuse"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src/skillchain", "tests", "docs", "README.md", "LICENSE", "CHANGELOG.md", "PLAN.md"]
+include = ["src/skillfuse", "tests", "docs", "README.md", "LICENSE", "CHANGELOG.md"]
 
 [tool.ruff]
 target-version = "py311"
@@ -105,12 +105,12 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "S105", "S106", "S108", "ANN", "PLR", "S", "T20", "RUF001", "RUF003"]
-"src/skillchain/cli/**" = ["T20"]
-"src/skillchain/sandbox/shims/**" = ["ALL"]
-"src/skillchain/rules/hidden_content.py" = ["RUF001"]  # confusable characters are the subject matter
+"src/skillfuse/cli/**" = ["T20"]
+"src/skillfuse/sandbox/shims/**" = ["ALL"]
+"src/skillfuse/rules/hidden_content.py" = ["RUF001"]  # confusable characters are the subject matter
 
 [tool.ruff.lint.isort]
-known-first-party = ["skillchain"]
+known-first-party = ["skillfuse"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -121,7 +121,7 @@ strict = true
 warn_unreachable = true
 pretty = true
 plugins = ["pydantic.mypy"]
-exclude = ["src/skillchain/sandbox/shims/"]
+exclude = ["src/skillfuse/sandbox/shims/"]
 
 [[tool.mypy.overrides]]
 module = ["sigstore.*"]
@@ -135,12 +135,12 @@ markers = [
   "docker: requires a working docker daemon",
   "network: requires outbound network (never run in CI by default)",
 ]
-filterwarnings = ["error::DeprecationWarning:skillchain.*"]
+filterwarnings = ["error::DeprecationWarning:skillfuse.*"]
 
 [tool.coverage.run]
-source = ["skillchain"]
+source = ["skillfuse"]
 branch = true
-omit = ["src/skillchain/sandbox/shims/*", "src/skillchain/__main__.py"]
+omit = ["src/skillfuse/sandbox/shims/*", "src/skillfuse/__main__.py"]
 
 [tool.coverage.report]
 fail_under = 85

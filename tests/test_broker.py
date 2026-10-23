@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from skillchain.broker import Broker, BrokerPolicy, BrokerStats, decide
-from skillchain.core.models import Decision
+from skillfuse.broker import Broker, BrokerPolicy, BrokerStats, decide
+from skillfuse.core.models import Decision
 
 
 class TestDecide:
@@ -145,7 +145,7 @@ class TestBrokerMessages:
 @pytest.mark.skipif(sys.platform == "win32", reason="posix only")
 def test_broker_run_end_to_end(tmp_path: Path) -> None:
     """Drive the broker against the bundled fake MCP server."""
-    from skillchain.sandbox.runner import SHIMS_DIR
+    from skillfuse.sandbox.runner import SHIMS_DIR
 
     events = tmp_path / "ev.jsonl"
     msgs = [
@@ -167,7 +167,7 @@ def test_broker_run_end_to_end(tmp_path: Path) -> None:
     host_out = io.StringIO()
     import os
 
-    os.environ["SKILLCHAIN_EVENTS"] = str(events)
+    os.environ["SKILLFUSE_EVENTS"] = str(events)
     try:
         broker = Broker(
             [sys.executable, str(SHIMS_DIR / "fake_mcp.py")],
@@ -179,7 +179,7 @@ def test_broker_run_end_to_end(tmp_path: Path) -> None:
         )
         code = broker.run()
     finally:
-        os.environ.pop("SKILLCHAIN_EVENTS", None)
+        os.environ.pop("SKILLFUSE_EVENTS", None)
     assert code == 0
     out = [json.loads(line) for line in host_out.getvalue().splitlines()]
     by_id = {o.get("id"): o for o in out}

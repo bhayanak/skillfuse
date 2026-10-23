@@ -1,14 +1,14 @@
-# Example .skillchain.yaml — place at the root you scan.
+# Example .skillfuse.yaml — place at the root you scan.
 excludes: [".git", "node_modules", ".venv", "__pycache__", "dist"]
 
 # Rule IDs or whole categories to switch off.
 disabled_rules: []
 
 # Directories with custom YAML rules (see docs/rules.md#custom-rules).
-rules_dirs: ["./skillchain-rules"]
+rules_dirs: ["./skillfuse-rules"]
 
 # Accepted findings (fingerprints) — generate from a JSON report.
-baseline: ".skillchain-baseline.json"
+baseline: ".skillfuse-baseline.json"
 
 network:
   allowed_domains: ["api.github.com", "*.atlassian.net", "*.hpe.com"]

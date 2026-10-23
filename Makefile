@@ -31,16 +31,16 @@ cov: ## HTML coverage report
 	$(UV) run pytest --cov --cov-report=html && open htmlcov/index.html
 
 scan: ## Scan the fixture corpus
-	$(UV) run skillchain scan tests/fixtures/corpus
+	$(UV) run skillfuse scan tests/fixtures/corpus
 
 detonate: ## Detonate the malicious fixtures in the sandbox
-	$(UV) run skillchain detonate tests/fixtures/corpus/malicious --backend subprocess
+	$(UV) run skillfuse detonate tests/fixtures/corpus/malicious --backend subprocess
 
 build: ## Build sdist + wheel
 	$(UV) build
 
 docker: ## Build the container image
-	docker build -t skillchain:dev .
+	docker build -t skillfuse:dev .
 
 docs-rules: ## Regenerate docs/rules.md from the registry
 	$(UV) run python scripts/gen_rules_doc.py > docs/rules.md

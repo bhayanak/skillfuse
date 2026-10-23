@@ -1,4 +1,4 @@
-# Example SkillChain policy for an enterprise registry.
+# Example SkillFuse policy for an enterprise registry.
 #
 # Decisions: allow < quarantine < block. The strictest matching action wins unless a rule is `final`.
 # Heuristic findings never block unless `heuristic_can_block: true`.

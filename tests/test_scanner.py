@@ -3,9 +3,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from skillchain.core.config import ScanConfig
-from skillchain.core.models import Severity
-from skillchain.scanner import Scanner, scan_path
+from skillfuse.core.config import ScanConfig
+from skillfuse.core.models import Severity
+from skillfuse.scanner import Scanner, scan_path
 
 from .conftest import rule_ids, write_skill
 
@@ -13,7 +13,7 @@ from .conftest import rule_ids, write_skill
 class TestScanner:
     def test_scan_path_uses_config_in_tree(self, tmp_path: Path) -> None:
         root = write_skill(tmp_path / "s", "see https://evil.xyz/")
-        (tmp_path / "s" / ".skillchain.yaml").write_text("disabled_rules: [SC-NET-004]")
+        (tmp_path / "s" / ".skillfuse.yaml").write_text("disabled_rules: [SC-NET-004]")
         assert "SC-NET-004" not in rule_ids(scan_path(root))
         assert "SC-NET-004" in rule_ids(Scanner(ScanConfig()).scan(root))
 
@@ -25,13 +25,13 @@ class TestScanner:
     def test_inline_suppression(self, tmp_path: Path) -> None:
         root = write_skill(
             tmp_path / "s",
-            "see https://evil.xyz/ <!-- skillchain: ignore SC-NET-004 -->\nand https://bad.xyz/",
+            "see https://evil.xyz/ <!-- skillfuse: ignore SC-NET-004 -->\nand https://bad.xyz/",
         )
         res = Scanner(ScanConfig()).scan(root)
         net4 = [f for f in res.findings if f.rule_id == "SC-NET-004"]
         assert len(net4) == 1
         assert res.suppressed >= 1
-        root2 = write_skill(tmp_path / "s2", "# skillchain: ignore\nsee https://evil.xyz/")
+        root2 = write_skill(tmp_path / "s2", "# skillfuse: ignore\nsee https://evil.xyz/")
         res2 = Scanner(ScanConfig()).scan(root2)
         assert not [f for f in res2.findings if f.rule_id == "SC-NET-004"]
 
@@ -45,7 +45,7 @@ class TestScanner:
         assert second.findings == []
         assert second.suppressed == len(fps)
         # full report as baseline
-        from skillchain.report import render_json
+        from skillfuse.report import render_json
 
         base.write_text(render_json(first))
         third = Scanner(ScanConfig(baseline=str(base))).scan(root)

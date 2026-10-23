@@ -6,12 +6,12 @@ from pathlib import Path
 
 import pytest
 
-from skillchain.core.config import ScanConfig
-from skillchain.core.models import Confidence, FileKind, Severity, SkillFile, SkillKind, SkillPackage
-from skillchain.rules import RuleContext, RuleRegistry, default_registry, load_custom_rules, registry_for
-from skillchain.rules.base import Rule
-from skillchain.rules.network import extract_hosts
-from skillchain.scanner import Scanner
+from skillfuse.core.config import ScanConfig
+from skillfuse.core.models import Confidence, FileKind, Severity, SkillFile, SkillKind, SkillPackage
+from skillfuse.rules import RuleContext, RuleRegistry, default_registry, load_custom_rules, registry_for
+from skillfuse.rules.base import Rule
+from skillfuse.rules.network import extract_hosts
+from skillfuse.scanner import Scanner
 
 from .conftest import rule_ids, write_skill
 

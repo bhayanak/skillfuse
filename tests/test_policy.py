@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from skillchain.core.models import Confidence, Decision, ScanResult
-from skillchain.policy import Policy, PolicyEngine, PolicyInput
-from skillchain.policy.opa import (
+from skillfuse.core.models import Confidence, Decision, ScanResult
+from skillfuse.policy import Policy, PolicyEngine, PolicyInput
+from skillfuse.policy.opa import (
     OpaUnavailableError,
     evaluate_with_opa,
     opa_available,

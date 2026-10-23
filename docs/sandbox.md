@@ -1,6 +1,6 @@
 # Sandbox detonation
 
-`skillchain detonate <skill>` executes the skill's scripts inside a disposable, canary-seeded environment and turns
+`skillfuse detonate <skill>` executes the skill's scripts inside a disposable, canary-seeded environment and turns
 what it observes into `SC-DYN-*` findings plus an *observed* capability manifest. Observed behaviour that static
 analysis did not predict becomes `SC-MAN-004` (critical) — the signature of obfuscation.
 
@@ -8,7 +8,7 @@ analysis did not predict becomes `SC-MAN-004` (critical) — the signature of ob
 
 | Location | Content |
 |---|---|
-| `$HOME/.aws/credentials`, `.ssh/id_ed25519`, `.netrc`, `.git-credentials`, `.npmrc`, `.config/gh/hosts.yml`, `.docker/config.json`, `.kube/config` | Unique canary secrets (prefix `SKCN`/`skcn`) |
+| `$HOME/.aws/credentials`, `.ssh/id_ed25519`, `.netrc`, `.git-credentials`, `.npmrc`, `.config/gh/hosts.yml`, `.docker/config.json`, `.kube/config` | Unique canary secrets (prefix `SKFS`/`skfs`) |
 | `$HOME/.bashrc`, `.zshrc` | Empty files to detect persistence writes |
 | Workspace `.env`, `src/app.py`, `notes.txt`, `package.json`, `.git/config` | More canaries plus an adversarial `README.md` containing a prompt-injection marker |
 | Environment | `AWS_*`, `GITHUB_TOKEN`, `OPENAI_API_KEY`, `SLACK_BOT_TOKEN`, `JIRA_API_TOKEN`, `DATABASE_URL`, `NPM_TOKEN` canaries |
@@ -33,16 +33,16 @@ Any canary appearing in an outbound request, DNS lookup, or MCP call ⇒ `SC-DYN
 | `subprocess` (default) | Fake HOME/TMP/PATH, rlimits, process group kill, shims. Egress is redirected/refused by shims and proxies but a determined script could still reach the network. | Developer machines, fast feedback |
 | `docker` | `--network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit`, sandbox root bind-mounted | CI and untrusted packages |
 
-Select with `--backend docker`; `auto` picks Docker only when `SKILLCHAIN_PREFER_DOCKER=1` and a daemon is available.
+Select with `--backend docker`; `auto` picks Docker only when `SKILLFUSE_PREFER_DOCKER=1` and a daemon is available.
 
 ## Options
 
 ```bash
-skillchain detonate ./skill --timeout 60 --backend docker
-skillchain detonate ./skill --markdown-blocks     # also run ```bash blocks from instructions
-skillchain detonate ./skill --keep ./sbx-debug    # keep the sandbox directory for inspection
-skillchain detonate ./skill -f json -o report.json # includes per-execution and per-event detail
-skillchain ci ./skills --detonate                 # inside the CI gate
+skillfuse detonate ./skill --timeout 60 --backend docker
+skillfuse detonate ./skill --markdown-blocks     # also run ```bash blocks from instructions
+skillfuse detonate ./skill --keep ./sbx-debug    # keep the sandbox directory for inspection
+skillfuse detonate ./skill -f json -o report.json # includes per-execution and per-event detail
+skillfuse ci ./skills --detonate                 # inside the CI gate
 ```
 
 ## Rules

@@ -1,15 +1,15 @@
 # CI & editor integration
 
-## `skillchain ci`
+## `skillfuse ci`
 
 One command: scan → policy → lockfile verify → SARIF → GitHub annotations → exit code.
 
 ```bash
-skillchain ci ./skills \
-  --policy .skillchain/policy.yaml \
-  --lock skillchain.lock --require-lock \
+skillfuse ci ./skills \
+  --policy .skillfuse/policy.yaml \
+  --lock skillfuse.lock --require-lock \
   --fail-on high [--fail-on-heuristic] [--fail-on-quarantine] \
-  --sarif skillchain.sarif --json report.json [--detonate] [--rego policy.rego]
+  --sarif skillfuse.sarif --json report.json [--detonate] [--rego policy.rego]
 ```
 
 | Exit | Meaning |
@@ -33,15 +33,15 @@ permissions:
   contents: read
   security-events: write
 jobs:
-  skillchain:
+  skillfuse:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: skillchain-dev/skillchain@v0      # pin to a SHA in production
+      - uses: bhayanak/skillfuse@v0      # pin to a SHA in production
         with:
           path: .github/skills
-          policy: .skillchain/policy.yaml
-          lock: skillchain.lock
+          policy: .skillfuse/policy.yaml
+          lock: skillfuse.lock
           require-lock: "true"
           fail-on: high
           detonate: "false"
@@ -54,7 +54,7 @@ Inputs mirror the CLI flags; outputs are the same four values.
 Use the container image:
 
 ```bash
-docker run --rm -v "$PWD:/src:ro" ghcr.io/skillchain-dev/skillchain ci /src/skills --sarif /src/skillchain.sarif
+docker run --rm -v "$PWD:/src:ro" ghcr.io/bhayanak/skillfuse ci /src/skills --sarif /src/skillfuse.sarif
 ```
 
 ## Pre-commit
@@ -62,28 +62,28 @@ docker run --rm -v "$PWD:/src:ro" ghcr.io/skillchain-dev/skillchain ci /src/skil
 ```yaml
 - repo: local
   hooks:
-    - id: skillchain
-      name: skillchain
-      entry: skillchain scan --fail-on high
+    - id: skillfuse
+      name: skillfuse
+      entry: skillfuse scan --fail-on high
       language: python
-      additional_dependencies: [skillchain]
+      additional_dependencies: [skillfuse]
       files: (SKILL\.md|\.agent\.md|\.prompt\.md|\.instructions\.md|mcp\.json|\.mdc)$
 ```
 
 ## Editors
 
 - **VS Code / Copilot**: scan `.github/agents`, `.github/prompts`, `.github/instructions`, `.vscode/mcp.json`.
-  SARIF opens in the *SARIF Viewer* extension; `skillchain scan -f sarif -o .vscode/skillchain.sarif`.
+  SARIF opens in the *SARIF Viewer* extension; `skillfuse scan -f sarif -o .vscode/skillfuse.sarif`.
 - **Claude Code**: scan `.claude/skills`, `CLAUDE.md`, `.mcp.json`, and plugin directories.
 - **Cursor**: scan `.cursorrules` and `.cursor/rules`.
-- **Any MCP host**: wrap servers with `skillchain broker -- <server command>` in the host's MCP config so every tool
+- **Any MCP host**: wrap servers with `skillfuse broker -- <server command>` in the host's MCP config so every tool
   call passes through the permission broker.
 
 ## Suppressing findings
 
-- Inline: append `skillchain: ignore SC-NET-004` to the offending line, or put `# skillchain: ignore` alone on the
+- Inline: append `skillfuse: ignore SC-NET-004` to the offending line, or put `# skillfuse: ignore` alone on the
   line above.
-- Baseline: `skillchain scan . -f json -o .skillchain-baseline.json` then `baseline: .skillchain-baseline.json` in
-  `.skillchain.yaml`. Fingerprints ignore line numbers.
+- Baseline: `skillfuse scan . -f json -o .skillfuse-baseline.json` then `baseline: .skillfuse-baseline.json` in
+  `.skillfuse.yaml`. Fingerprints ignore line numbers.
 - Policy: `rule_ids.ignore`.
 - Config: `disabled_rules` (IDs or categories).

@@ -1,7 +1,7 @@
-# Example broker policy for `skillchain broker`.
+# Example broker policy for `skillfuse broker`.
 name: jira-server-broker
 default: allow
-approved_capabilities: ["jira.read", "confluence.read", "network.egress"]   # usually taken from skillchain.lock
+approved_capabilities: ["jira.read", "confluence.read", "network.egress"]   # usually taken from skillfuse.lock
 deny_capabilities: ["system.persistence"]
 ask_capabilities: ["jira.write", "confluence.write", "filesystem.write", "shell.exec"]
 deny_tools: ["*delete*", "*destroy*"]

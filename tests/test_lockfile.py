@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from skillchain.core.config import ScanConfig
-from skillchain.core.models import Decision
-from skillchain.lockfile import LockedSigner, Lockfile, LockStatus, generate_lock, verify_lock
-from skillchain.policy import PolicyEngine
-from skillchain.scanner import Scanner
+from skillfuse.core.config import ScanConfig
+from skillfuse.core.models import Decision
+from skillfuse.lockfile import LockedSigner, Lockfile, LockStatus, generate_lock, verify_lock
+from skillfuse.policy import PolicyEngine
+from skillfuse.scanner import Scanner
 
 from .conftest import write_skill
 
@@ -28,11 +28,11 @@ class TestLockfile:
             policy_text="x: 1",
             signers={"changelog-writer": LockedSigner(keyid="k", publisher="acme")},
         )
-        out = tmp_path / "skillchain.lock"
+        out = tmp_path / "skillfuse.lock"
         lock.write(out)
         loaded = Lockfile.load(out)
         assert loaded.skills.keys() == lock.skills.keys()
-        assert loaded.schema_ == "skillchain/lock/v1"
+        assert loaded.schema_ == "skillfuse/lock/v1"
         assert loaded.policy["digest"] is not None
         assert loaded.skills["changelog-writer"].signer is not None
         assert loaded.skills["changelog-writer"].path == "changelog-writer"

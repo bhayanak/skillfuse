@@ -6,9 +6,9 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from skillchain.core.config import ScanConfig
-from skillchain.core.hashing import file_digest, iter_package_files, text_digest, tree_digest
-from skillchain.core.models import (
+from skillfuse.core.config import ScanConfig
+from skillfuse.core.hashing import file_digest, iter_package_files, text_digest, tree_digest
+from skillfuse.core.models import (
     CapabilityManifest,
     Category,
     Confidence,
@@ -17,7 +17,7 @@ from skillchain.core.models import (
     Location,
     Severity,
 )
-from skillchain.core.textutil import clip, iter_matches, line_of, offset_to_line_col, redact
+from skillfuse.core.textutil import clip, iter_matches, line_of, offset_to_line_col, redact
 
 
 def _finding(**kw: object) -> Finding:
@@ -112,8 +112,8 @@ class TestHashing:
         (tmp_path / "a").write_text("a")
         (tmp_path / ".git").mkdir()
         (tmp_path / ".git" / "x").write_text("x")
-        (tmp_path / ".skillchain").mkdir()
-        (tmp_path / ".skillchain" / "sig").write_text("s")
+        (tmp_path / ".skillfuse").mkdir()
+        (tmp_path / ".skillfuse" / "sig").write_text("s")
         files = [p.name for p in iter_package_files(tmp_path)]
         assert files == ["a"]
         assert "sig" in [p.name for p in iter_package_files(tmp_path, include_signature_dir=True)]
@@ -158,7 +158,7 @@ class TestConfig:
         assert cfg.resolve(None) is None
 
     def test_load_file_and_resolve(self, tmp_path: Path) -> None:
-        (tmp_path / ".skillchain.yaml").write_text(
+        (tmp_path / ".skillfuse.yaml").write_text(
             "disabled_rules: [SC-NET-004]\nbaseline: base.json\nnetwork:\n  allowed_domains: [api.github.com]\n  flag_unlisted: true\n"
         )
         cfg = ScanConfig.load(tmp_path)

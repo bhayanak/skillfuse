@@ -4,10 +4,10 @@ A policy turns a scan into one of three decisions per skill: **allow**, **quaran
 **block**. The strictest matching action wins unless a rule is marked `final`.
 
 ```bash
-skillchain policy show-default           # print the built-in policy
-skillchain policy validate policy.yaml
-skillchain policy eval ./skills -p policy.yaml
-skillchain scan ./skills -p policy.yaml  # scan + verdicts in one go
+skillfuse policy show-default           # print the built-in policy
+skillfuse policy validate policy.yaml
+skillfuse policy eval ./skills -p policy.yaml
+skillfuse scan ./skills -p policy.yaml  # scan + verdicts in one go
 ```
 
 ## Schema
@@ -69,5 +69,5 @@ registries where every skill is reviewed anyway.
 ## OPA / Rego
 
 If `opa` is on `PATH`, pass `--rego policy.rego` to `scan`, `ci`, or `policy eval`. The input document is the
-per-skill JSON from `skillchain scan -f json` plus `signed` and `in_lock`. The policy must set
-`data.skillchain.result = {"decision": ..., "reasons": [...]}`. See `examples/policy.rego`.
+per-skill JSON from `skillfuse scan -f json` plus `signed` and `in_lock`. The policy must set
+`data.skillfuse.result = {"decision": ..., "reasons": [...]}`. See `examples/policy.rego`.

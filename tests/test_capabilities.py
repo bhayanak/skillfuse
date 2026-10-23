@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from skillchain.capabilities import (
+from skillfuse.capabilities import (
     capabilities_for_tool,
     covers,
     declared_manifest,
@@ -14,10 +14,10 @@ from skillchain.capabilities import (
     is_valid_capability,
     manifest_findings,
 )
-from skillchain.core.config import ScanConfig
-from skillchain.core.models import CapabilityManifest, Confidence, Severity
-from skillchain.formats import discover_packages
-from skillchain.scanner import Scanner
+from skillfuse.core.config import ScanConfig
+from skillfuse.core.models import CapabilityManifest, Confidence, Severity
+from skillfuse.formats import discover_packages
+from skillfuse.scanner import Scanner
 
 from .conftest import rule_ids, write_skill
 
@@ -127,11 +127,11 @@ class TestManifest:
         assert d is not None
         assert d.capabilities == ("filesystem.write", "network.egress")
 
-    def test_skillchain_yaml_wins(self, tmp_path: Path) -> None:
+    def test_skillfuse_yaml_wins(self, tmp_path: Path) -> None:
         root = write_skill(
             tmp_path / "a", "x", frontmatter="name: a\ndescription: d\ncapabilities: [git.read]"
         )
-        (root / "skillchain.yaml").write_text("capabilities: [network.egress]")
+        (root / "skillfuse.yaml").write_text("capabilities: [network.egress]")
         d = declared_manifest(discover_packages(root)[0])
         assert d is not None
         assert d.capabilities == ("network.egress",)

@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from skillchain.core.config import ScanConfig
-from skillchain.core.models import ScanResult
-from skillchain.scanner import Scanner
+from skillfuse.core.config import ScanConfig
+from skillfuse.core.models import ScanResult
+from skillfuse.scanner import Scanner
 
 FIXTURES = Path(__file__).parent / "fixtures"
 CORPUS = FIXTURES / "corpus"

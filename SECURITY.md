@@ -1,6 +1,6 @@
 # Security Policy
 
-SkillChain is a security tool; we treat vulnerabilities in it with the same seriousness we expect from the skills
+SkillFuse is a security tool; we treat vulnerabilities in it with the same seriousness we expect from the skills
 it scans.
 
 ## Supported versions
@@ -13,7 +13,7 @@ it scans.
 
 **Please do not open public issues for security problems.**
 
-Use [GitHub private vulnerability reporting](https://github.com/skillchain-dev/skillchain/security/advisories/new).
+Use [GitHub private vulnerability reporting](https://github.com/bhayanak/skillfuse/security/advisories/new).
 You will receive an acknowledgement within 3 business days and a remediation plan or status update within 14 days.
 
 Please include: affected version, reproduction steps or a proof-of-concept skill package, and the impact you
@@ -27,7 +27,7 @@ In scope:
   of heuristic rules are welcome as regular issues with a fixture, since heuristics are best-effort by design.
 - **Sandbox escapes**: a detonated script that reaches the real network, real `$HOME`, or persists outside the
   sandbox root when using the documented backends.
-- **Signature / lockfile / transparency-log integrity**: any way to make `skillchain verify`, `lock verify`, or
+- **Signature / lockfile / transparency-log integrity**: any way to make `skillfuse verify`, `lock verify`, or
   `log verify` report success for tampered content.
 - **Scanner safety**: the scanner reading or writing files outside the target (symlink following, path traversal),
   resource exhaustion from crafted inputs (ReDoS, zip bombs), or code execution during *static* scanning.
@@ -40,8 +40,8 @@ Out of scope:
 
 ## Hardening notes for operators
 
-- Run `skillchain detonate` with the Docker backend in CI; the subprocess backend relies on runtime shims and is
+- Run `skillfuse detonate` with the Docker backend in CI; the subprocess backend relies on runtime shims and is
   designed for developer machines.
-- Pin the action (`skillchain-dev/skillchain@<sha>`) and the container image by digest.
+- Pin the action (`bhayanak/skillfuse@<sha>`) and the container image by digest.
 - Keep private signing keys out of repositories; prefer Sigstore keyless signing in CI.
-- Treat `skillchain.lock` as code: require review for changes.
+- Treat `skillfuse.lock` as code: require review for changes.

@@ -24,9 +24,9 @@ repos:
         additional_dependencies: [pydantic>=2.9, types-PyYAML, typer, rich, cryptography]
   - repo: local
     hooks:
-      - id: skillchain-self-scan
-        name: skillchain scan of benign fixtures
-        entry: uv run skillchain scan tests/fixtures/corpus/benign --fail-on high
+      - id: skillfuse-self-scan
+        name: skillfuse scan of benign fixtures
+        entry: uv run skillfuse scan tests/fixtures/corpus/benign --fail-on high
         language: system
         pass_filenames: false
         files: ^(src/|tests/fixtures/corpus/benign/)

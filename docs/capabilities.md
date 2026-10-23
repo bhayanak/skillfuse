@@ -3,7 +3,7 @@
 A capability is a dotted, hierarchical string describing something a skill can *do*. The taxonomy is intentionally
 small and host-agnostic; host-specific tool names are mapped onto it.
 
-List the taxonomy with `skillchain rules capabilities`.
+List the taxonomy with `skillfuse rules capabilities`.
 
 | Capability | Meaning |
 |---|---|
@@ -21,7 +21,7 @@ List the taxonomy with `skillchain rules capabilities`.
 
 ## Declaring
 
-Either in frontmatter or `skillchain.yaml` next to the entrypoint. All of these are accepted:
+Either in frontmatter or `skillfuse.yaml` next to the entrypoint. All of these are accepted:
 
 ```yaml
 capabilities: [git.read, filesystem.write]
@@ -56,4 +56,4 @@ conditions only consider strong evidence (set `include_weak: true` in a `capabil
 | `SC-MAN-004` | **Runtime-only**: sandbox observed something static analysis did not predict — critical |
 | `SC-MAN-005` | Unknown capability name |
 
-`skillchain manifest <path> --write` generates a `skillchain.yaml` from strong evidence to bootstrap a manifest.
+`skillfuse manifest <path> --write` generates a `skillfuse.yaml` from strong evidence to bootstrap a manifest.

@@ -1,10 +1,10 @@
 # Default owners for everything
-*                       @skillchain-dev/maintainers
+*                       @bhayanak
 
-# Security-sensitive areas require a second pair of eyes
-/src/skillchain/rules/      @skillchain-dev/maintainers @skillchain-dev/security
-/src/skillchain/sandbox/    @skillchain-dev/maintainers @skillchain-dev/security
-/src/skillchain/signing/    @skillchain-dev/maintainers @skillchain-dev/security
-/src/skillchain/broker/     @skillchain-dev/maintainers @skillchain-dev/security
-/.github/workflows/         @skillchain-dev/maintainers @skillchain-dev/security
-/action.yml                 @skillchain-dev/maintainers @skillchain-dev/security
+# Security-sensitive areas (add a second reviewer here when the team grows)
+/src/skillfuse/rules/      @bhayanak
+/src/skillfuse/sandbox/    @bhayanak
+/src/skillfuse/signing/    @bhayanak
+/src/skillfuse/broker/     @bhayanak
+/.github/workflows/         @bhayanak
+/action.yml                 @bhayanak

@@ -14,11 +14,11 @@ coverage.xml
 htmlcov/
 junit.xml
 
-# SkillChain artefacts
+# SkillFuse artefacts
 *.sarif
-skillchain.lock
-.skillchain-keys/
-skillchain-report.json
+skillfuse.lock
+.skillfuse-keys/
+skillfuse-report.json
 skill.tar.gz
 
 # Editors / OS

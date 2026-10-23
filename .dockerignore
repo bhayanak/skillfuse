@@ -11,6 +11,6 @@ htmlcov
 .coverage
 coverage.xml
 *.sarif
-skillchain.lock
-.skillchain-keys
+skillfuse.lock
+.skillfuse-keys
 glp-design-workflow

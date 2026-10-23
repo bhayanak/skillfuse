@@ -5,9 +5,9 @@ from pathlib import Path
 
 from rich.console import Console
 
-from skillchain.core.models import ScanResult
-from skillchain.policy import PolicyEngine
-from skillchain.report import render_console, render_json, render_markdown, render_sarif, summarise, to_sarif
+from skillfuse.core.models import ScanResult
+from skillfuse.policy import PolicyEngine
+from skillfuse.report import render_console, render_json, render_markdown, render_sarif, summarise, to_sarif
 
 
 def _verdicts(result: ScanResult):  # type: ignore[no-untyped-def]
@@ -20,7 +20,7 @@ class TestSarif:
         doc = to_sarif(corpus_result, base_dir=corpus)
         assert doc["version"] == "2.1.0"
         run = doc["runs"][0]
-        assert run["tool"]["driver"]["name"] == "SkillChain"
+        assert run["tool"]["driver"]["name"] == "SkillFuse"
         rules = {r["id"]: r for r in run["tool"]["driver"]["rules"]}
         results = run["results"]
         assert len(results) == len(corpus_result.findings)
@@ -31,7 +31,7 @@ class TestSarif:
             assert loc["artifactLocation"]["uriBaseId"] == "%SRCROOT%"
             assert not loc["artifactLocation"]["uri"].startswith("/")
             assert loc["region"]["startLine"] >= 1
-            assert "skillchain/v1" in r["partialFingerprints"]
+            assert "skillfuse/v1" in r["partialFingerprints"]
             assert r["properties"]["confidence"] in {"deterministic", "heuristic"}
         for rule in rules.values():
             if "security-severity" in rule["properties"]:
@@ -52,7 +52,7 @@ class TestSarif:
         json.loads(render_sarif(corpus_result))
 
     def test_unknown_rule_ids_get_descriptor(self, corpus_result: ScanResult) -> None:
-        from skillchain.core.models import Category, Confidence, Finding, Location, Severity
+        from skillfuse.core.models import Category, Confidence, Finding, Location, Severity
 
         extra = Finding(
             rule_id="SC-DYN-001",
@@ -72,7 +72,7 @@ class TestSarif:
 class TestJsonMarkdownConsole:
     def test_json(self, corpus_result: ScanResult) -> None:
         doc = json.loads(render_json(corpus_result, _verdicts(corpus_result)))
-        assert doc["schema"] == "skillchain/report/v1"
+        assert doc["schema"] == "skillfuse/report/v1"
         assert doc["summary"]["total"] == len(corpus_result.findings)
         s = next(x for x in doc["skills"] if x["name"] == "helpful-formatter")
         assert s["verdict"]["decision"] == "block"
@@ -85,7 +85,7 @@ class TestJsonMarkdownConsole:
 
     def test_markdown(self, corpus_result: ScanResult) -> None:
         md = render_markdown(corpus_result, _verdicts(corpus_result))
-        assert md.startswith("# SkillChain report")
+        assert md.startswith("# SkillFuse report")
         assert "## helpful-formatter (skill) — **BLOCK**" in md
         assert "| Sev | Conf | Rule |" in md
         assert "_No findings._" in md

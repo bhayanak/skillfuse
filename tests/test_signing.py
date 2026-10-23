@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from skillchain.core.hashing import tree_digest
-from skillchain.signing import (
+from skillfuse.core.hashing import tree_digest
+from skillfuse.signing import (
     GENESIS,
     TransparencyLog,
     canonical_json,
@@ -22,8 +22,8 @@ from skillchain.signing import (
     verify_package,
     write_keypair,
 )
-from skillchain.signing.attestation import decode_envelope, envelope, pae
-from skillchain.signing.external import (
+from skillfuse.signing.attestation import decode_envelope, envelope, pae
+from skillfuse.signing.external import (
     cosign_available,
     sign_with_cosign,
     sign_with_sigstore,

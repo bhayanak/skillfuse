@@ -4,8 +4,8 @@ Releases are fully automated from a tag; maintainers only bump the version and w
 
 ## One-time setup (repository admin)
 
-1. **PyPI trusted publishing** — on PyPI, add a *pending publisher* for project `skillchain`, owner
-   `skillchain-dev`, repository `skillchain`, workflow `release.yml`, environment `pypi`.
+1. **PyPI trusted publishing** — on PyPI, add a *pending publisher* for project `skillfuse`, owner
+   `bhayanak`, repository `skillfuse`, workflow `release.yml`, environment `pypi`.
 2. **GitHub environment** `pypi` with required reviewers.
 3. **Branch protection** on `main`: require the `CI` checks, signed commits, linear history.
 4. Enable *Private vulnerability reporting*, *Dependabot alerts*, and *Code scanning* in repository settings.
@@ -15,11 +15,11 @@ Releases are fully automated from a tag; maintainers only bump the version and w
 ```bash
 # 1. bump version
 sed -i '' 's/^version = .*/version = "0.2.0"/' pyproject.toml
-sed -i '' 's/^__version__ = .*/__version__ = "0.2.0"/' src/skillchain/__init__.py
+sed -i '' 's/^__version__ = .*/__version__ = "0.2.0"/' src/skillfuse/__init__.py
 # 2. move Unreleased notes under ## [0.2.0] - YYYY-MM-DD in CHANGELOG.md
 # 3. commit, tag, push
 git commit -am "chore: release v0.2.0"
-git tag -s v0.2.0 -m "v0.2.0"
+git tag -a v0.2.0 -m "v0.2.0"
 git push origin main v0.2.0
 ```
 
@@ -38,8 +38,8 @@ Dry run without publishing: *Actions → Release → Run workflow* with `dry-run
 ## Verifying a release
 
 ```bash
-pip download skillchain==0.2.0 --no-deps -d dist
-sigstore verify github dist/*.whl --repository skillchain-dev/skillchain
-slsa-verifier verify-artifact dist/*.whl --provenance-path multiple.intoto.jsonl --source-uri github.com/skillchain-dev/skillchain
-cosign verify ghcr.io/skillchain-dev/skillchain:0.2.0 --certificate-identity-regexp 'github.com/skillchain-dev/skillchain' --certificate-oidc-issuer https://token.actions.githubusercontent.com
+pip download skillfuse==0.2.0 --no-deps -d dist
+sigstore verify github dist/*.whl --repository bhayanak/skillfuse
+slsa-verifier verify-artifact dist/*.whl --provenance-path multiple.intoto.jsonl --source-uri github.com/bhayanak/skillfuse
+cosign verify ghcr.io/bhayanak/skillfuse:0.2.0 --certificate-identity-regexp 'github.com/bhayanak/skillfuse' --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```

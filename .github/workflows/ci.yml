@@ -92,11 +92,11 @@ jobs:
           python-version: "3.12"
       - run: uv sync
       - name: Scan the benign corpus (must pass)
-        run: uv run skillchain ci tests/fixtures/corpus/benign --sarif benign.sarif
+        run: uv run skillfuse ci tests/fixtures/corpus/benign --sarif benign.sarif
       - name: Scan the malicious corpus (expected to block)
         run: |
           set +e
-          uv run skillchain ci tests/fixtures/corpus/malicious --sarif malicious.sarif
+          uv run skillfuse ci tests/fixtures/corpus/malicious --sarif malicious.sarif
           code=$?
           echo "exit code: $code"
           test "$code" -eq 2 || { echo "::error::expected policy block (exit 2) on malicious corpus"; exit 1; }
@@ -104,7 +104,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: malicious.sarif
-          category: skillchain-fixtures
+          category: skillfuse-fixtures
 
   build:
     name: Build distributions
@@ -128,8 +128,8 @@ jobs:
       - name: Smoke-install wheel
         run: |
           python -m venv /tmp/v && /tmp/v/bin/pip install -q dist/*.whl
-          /tmp/v/bin/skillchain --version
-          /tmp/v/bin/skillchain rules list -f json | head -c 300
+          /tmp/v/bin/skillfuse --version
+          /tmp/v/bin/skillfuse rules list -f json | head -c 300
       - uses: actions/upload-artifact@v4
         with:
           name: dist
@@ -149,10 +149,10 @@ jobs:
           context: .
           push: false
           load: true
-          tags: skillchain:ci
+          tags: skillfuse:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - run: docker run --rm -v "$PWD/tests/fixtures/corpus/benign:/src:ro" skillchain:ci scan /src --no-policy
+      - run: docker run --rm -v "$PWD/tests/fixtures/corpus/benign:/src:ro" skillfuse:ci scan /src --no-policy
 
   action-test:
     name: Composite action smoke test

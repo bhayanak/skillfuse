@@ -7,8 +7,8 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from skillchain import __version__
-from skillchain.ci import (
+from skillfuse import __version__
+from skillfuse.ci import (
     EXIT_BLOCKED,
     EXIT_FINDINGS,
     EXIT_LOCK,
@@ -17,9 +17,9 @@ from skillchain.ci import (
     evaluate_gate,
     github_annotation,
 )
-from skillchain.cli.app import app
-from skillchain.core.models import Confidence, Decision, PolicyVerdict, Severity
-from skillchain.lockfile import LockStatus, LockVerification, SkillLockResult
+from skillfuse.cli.app import app
+from skillfuse.core.models import Confidence, Decision, PolicyVerdict, Severity
+from skillfuse.lockfile import LockStatus, LockVerification, SkillLockResult
 
 from .conftest import write_skill
 
@@ -114,12 +114,12 @@ class TestCli:
     def test_scan_formats(self, corpus: Path, tmp_path: Path) -> None:
         r = run("scan", str(corpus), "-f", "json", "--no-policy")
         doc = json.loads(r.output)
-        assert doc["schema"] == "skillchain/report/v1"
+        assert doc["schema"] == "skillfuse/report/v1"
         out = tmp_path / "r.sarif"
         r = run("scan", str(corpus), "-f", "sarif", "-o", str(out), "--no-policy")
         assert out.exists() and json.loads(out.read_text())["version"] == "2.1.0"
         r = run("scan", str(corpus), "-f", "markdown", "--no-policy")
-        assert r.output.startswith("# SkillChain report")
+        assert r.output.startswith("# SkillFuse report")
         r = run("scan", str(corpus), "-f", "bogus")
         assert r.exit_code == 10
 
@@ -145,8 +145,8 @@ class TestCli:
         assert "inferred" in r.output
         root = write_skill(tmp_path / "s", "x", scripts={"a.sh": "curl https://a.example.net"})
         r = run("manifest", str(root), "--write")
-        assert (root / "skillchain.yaml").exists()
-        assert "network.egress" in (root / "skillchain.yaml").read_text()
+        assert (root / "skillfuse.yaml").exists()
+        assert "network.egress" in (root / "skillfuse.yaml").read_text()
 
     def test_rules_commands(self) -> None:
         r = run("rules", "list")
@@ -172,21 +172,21 @@ class TestCli:
         assert json.loads(r.output)["helpful-formatter"]["decision"] == "block"
 
     def test_policy_eval_rego_without_opa(self, benign_dir: Path, tmp_path: Path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
-        monkeypatch.setattr("skillchain.cli.app.opa_available", lambda: False)
+        monkeypatch.setattr("skillfuse.cli.app.opa_available", lambda: False)
         r = run("policy", "eval", str(benign_dir), "--rego", str(tmp_path / "x.rego"))
         assert r.exit_code == 10
 
     def test_keys_sign_verify_log_pack(self, skill_dir: Path, tmp_path: Path) -> None:
         keys = tmp_path / "keys"
         r = run("keys", "generate", "-o", str(keys))
-        assert r.exit_code == 0 and (keys / "skillchain.key").exists()
+        assert r.exit_code == 0 and (keys / "skillfuse.key").exists()
         log = tmp_path / "log.jsonl"
         archive = tmp_path / "skill.tgz"
         r = run(
             "sign",
             str(skill_dir),
             "-k",
-            str(keys / "skillchain.key"),
+            str(keys / "skillfuse.key"),
             "--publisher",
             "acme",
             "--log",
@@ -196,7 +196,7 @@ class TestCli:
         )
         assert r.exit_code == 0, r.output
         assert "signed" in r.output and archive.exists()
-        r = run("verify", str(skill_dir), "-t", str(keys / "skillchain.pub"), "--log", str(log))
+        r = run("verify", str(skill_dir), "-t", str(keys / "skillfuse.pub"), "--log", str(log))
         assert r.exit_code == 0 and "verified" in r.output and "included" in r.output
         r = run("verify", str(skill_dir), "-f", "json")
         assert json.loads(r.output)["ok"] is True
@@ -215,7 +215,7 @@ class TestCli:
     def test_sign_refuses_blocked(self, malicious_dir: Path, tmp_path: Path) -> None:
         keys = tmp_path / "keys"
         run("keys", "generate", "-o", str(keys))
-        r = run("sign", str(malicious_dir / "trojan-source"), "-k", str(keys / "skillchain.key"))
+        r = run("sign", str(malicious_dir / "trojan-source"), "-k", str(keys / "skillfuse.key"))
         assert r.exit_code == 2 and "refusing" in r.output
 
     def test_keys_with_passphrase_env(self, tmp_path: Path, skill_dir: Path) -> None:
@@ -227,7 +227,7 @@ class TestCli:
                 "sign",
                 str(skill_dir),
                 "-k",
-                str(keys / "skillchain.key"),
+                str(keys / "skillfuse.key"),
                 "--passphrase-env",
                 "SC_PASS",
                 env=env,
@@ -240,7 +240,7 @@ class TestCli:
 
         work = tmp_path / "work"
         shutil.copytree(benign_dir, work)
-        lock = tmp_path / "skillchain.lock"
+        lock = tmp_path / "skillfuse.lock"
         r = run("lock", "generate", str(work), "-o", str(lock))
         assert r.exit_code == 0 and lock.exists()
         r = run("lock", "verify", str(work), "-l", str(lock))
@@ -265,7 +265,7 @@ class TestCli:
             "sign",
             str(work / "benign" / "changelog-writer"),
             "-k",
-            str(keys / "skillchain.key"),
+            str(keys / "skillfuse.key"),
             "--publisher",
             "acme",
         )
@@ -286,7 +286,7 @@ class TestCli:
         assert r.exit_code == 0, r.output
         assert "gate passed" in r.output
         assert sarif.exists() and jout.exists()
-        assert summary.read_text().startswith("# SkillChain report")
+        assert summary.read_text().startswith("# SkillFuse report")
         assert "exit-code=0" in gh_out.read_text()
         r = run("ci", str(malicious_dir), "--sarif", str(sarif), env=env)
         assert r.exit_code == EXIT_BLOCKED
@@ -297,7 +297,7 @@ class TestCli:
 
         work = tmp_path / "work"
         shutil.copytree(benign_dir, work)
-        lock = tmp_path / "skillchain.lock"
+        lock = tmp_path / "skillfuse.lock"
         run("lock", "generate", str(work), "-o", str(lock))
         r = run("ci", str(work), "--lock", str(lock), "--sarif", str(tmp_path / "s.sarif"))
         assert r.exit_code == 0, r.output
@@ -351,7 +351,7 @@ class TestCli:
     def test_broker_runs_with_fake_server(self, tmp_path: Path, benign_dir: Path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
         import sys
 
-        from skillchain.sandbox.runner import SHIMS_DIR
+        from skillfuse.sandbox.runner import SHIMS_DIR
 
         lock = tmp_path / "l.lock"
         run("lock", "generate", str(benign_dir), "-o", str(lock))
@@ -371,7 +371,7 @@ class TestCli:
             },
         ]
         stdin = "\n".join(json.dumps(m) for m in msgs) + "\n"
-        monkeypatch.setattr(os, "environ", {**os.environ, "SKILLCHAIN_EVENTS": str(tmp_path / "ev.jsonl")})
+        monkeypatch.setattr(os, "environ", {**os.environ, "SKILLFUSE_EVENTS": str(tmp_path / "ev.jsonl")})
         r = runner.invoke(
             app,
             [

@@ -1,11 +1,11 @@
-# Contributing to SkillChain
+# Contributing to SkillFuse
 
 Thanks for helping make agent skills safer. This guide covers setup, conventions, and how to add rules.
 
 ## Development setup
 
 ```bash
-git clone https://github.com/skillchain-dev/skillchain && cd skillchain
+git clone https://github.com/bhayanak/skillfuse && cd skillfuse
 uv sync --all-extras          # creates .venv with dev dependencies
 uv run pre-commit install     # optional but recommended
 make test lint typecheck      # the same gates CI runs
@@ -20,7 +20,7 @@ See [docs/architecture.md](docs/architecture.md). In short: `core/` models → `
 
 ## Adding a rule
 
-1. Pick the category module in `src/skillchain/rules/` and a new stable ID (`SC-<CAT>-NNN`, never reuse).
+1. Pick the category module in `src/skillfuse/rules/` and a new stable ID (`SC-<CAT>-NNN`, never reuse).
 2. Subclass `RegexRule` (one finding per match) or `Rule` (custom logic). Set `severity`, `confidence`, `category`,
    `applies_to`, `remediation`, and `capabilities`.
 3. **Confidence is a contract.** Use `deterministic` only when the finding is a reproducible fact about the text.
@@ -33,7 +33,7 @@ See [docs/architecture.md](docs/architecture.md). In short: `core/` models → `
 
 ## Adding a capability or tool mapping
 
-Edit `src/skillchain/capabilities/taxonomy.py` (`CAPABILITIES`, `TOOL_CAPABILITIES`) and inference patterns in
+Edit `src/skillfuse/capabilities/taxonomy.py` (`CAPABILITIES`, `TOOL_CAPABILITIES`) and inference patterns in
 `inference.py`. Script/config evidence is *strong*; prose evidence is *weak* and must stay heuristic.
 
 ## Conventions
@@ -49,7 +49,7 @@ Edit `src/skillchain/capabilities/taxonomy.py` (`CAPABILITIES`, `TOOL_CAPABILITI
 
 - One logical change per PR; include tests and a CHANGELOG entry under *Unreleased*.
 - CI must be green (lint, types, tests on Linux + macOS, self-scan).
-- For rule changes, paste the before/after `skillchain scan tests/fixtures/corpus` summary line in the PR.
+- For rule changes, paste the before/after `skillfuse scan tests/fixtures/corpus` summary line in the PR.
 
 ## Code of conduct
 

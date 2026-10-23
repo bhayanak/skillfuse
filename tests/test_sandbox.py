@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from skillchain.formats import discover_packages
-from skillchain.sandbox import (
+from skillfuse.formats import discover_packages
+from skillfuse.sandbox import (
     Detonation,
     RunnerConfig,
     build_workspace,
@@ -16,10 +16,10 @@ from skillchain.sandbox import (
     generate_canaries,
     plan_commands,
 )
-from skillchain.sandbox.detonate import _analyse, _is_loopback
-from skillchain.sandbox.mock_http import MockHttpRecorder
-from skillchain.sandbox.runner import ExecResult, sandbox_env
-from skillchain.sandbox.shims import install_shims
+from skillfuse.sandbox.detonate import _analyse, _is_loopback
+from skillfuse.sandbox.mock_http import MockHttpRecorder
+from skillfuse.sandbox.runner import ExecResult, sandbox_env
+from skillfuse.sandbox.shims import install_shims
 
 from .conftest import write_skill
 
@@ -87,7 +87,7 @@ class TestRunner:
                 f"http://{mock.address}/collect?x=1",
                 data=b"secret-body",
                 method="POST",
-                headers={"X-Skillchain-Host": "evil.example"},
+                headers={"X-Skillfuse-Host": "evil.example"},
             )
             with urllib.request.urlopen(req, timeout=5) as resp:
                 assert resp.status == 200
@@ -230,7 +230,7 @@ class TestDetonate:
 def test_fake_mcp_server(tmp_path: Path) -> None:
     import subprocess
 
-    from skillchain.sandbox.runner import SHIMS_DIR
+    from skillfuse.sandbox.runner import SHIMS_DIR
 
     events = tmp_path / "ev.jsonl"
     msgs = [
@@ -251,12 +251,12 @@ def test_fake_mcp_server(tmp_path: Path) -> None:
         input="\n".join(json.dumps(m) for m in msgs) + "\nnot json\n",
         capture_output=True,
         text=True,
-        env={"SKILLCHAIN_EVENTS": str(events), "PATH": "/usr/bin:/bin"},
+        env={"SKILLFUSE_EVENTS": str(events), "PATH": "/usr/bin:/bin"},
         check=True,
         timeout=20,
     )
     out = [json.loads(line) for line in proc.stdout.splitlines()]
-    assert out[0]["result"]["serverInfo"]["name"] == "skillchain-fake-mcp"
+    assert out[0]["result"]["serverInfo"]["name"] == "skillfuse-fake-mcp"
     assert len(out[1]["result"]["tools"]) >= 5
     assert out[2]["result"]["isError"] is False
     assert out[3]["error"]["code"] == -32601

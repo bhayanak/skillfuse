@@ -6,7 +6,7 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
-## [0.1.0] - 2025-10-23
+## [0.1.0] - 2026-10-23
 
 ### Added
 - Static scanner with 50+ rules across ten categories (`SC-PI`, `SC-HID`, `SC-EXF`, `SC-SH`, `SC-NET`, `SC-TOOL`,
@@ -22,12 +22,12 @@ All notable changes to this project are documented here. The format follows
   MCP server, subprocess and Docker backends; `SC-DYN-*` findings and observed-vs-inferred drift (`SC-MAN-004`).
 - Signing: deterministic tree digest, reproducible tar.gz, Ed25519 DSSE/in-toto attestations, Sigstore and cosign
   adapters, hash-chained transparency log with inclusion proofs.
-- `skillchain.lock` generation and verification (digest, capabilities, accepted findings, signer).
+- `skillfuse.lock` generation and verification (digest, capabilities, accepted findings, signer).
 - MCP permission broker with per-call decisions, secret-argument blocking, rate limiting, audit log and drift alerts.
-- `skillchain ci` gate with exit-code contract, GitHub annotations, step summary and outputs; composite GitHub Action.
+- `skillfuse ci` gate with exit-code contract, GitHub annotations, step summary and outputs; composite GitHub Action.
 - CI workflows (lint, matrix tests, self-scan with SARIF upload, build, Docker, action smoke test), CodeQL, Scorecard,
   Dependabot, and a release pipeline producing SBOM, Sigstore signatures, SLSA provenance, PyPI (trusted publishing)
   and GHCR images.
 
-[Unreleased]: https://github.com/skillchain-dev/skillchain/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/skillchain-dev/skillchain/releases/tag/v0.1.0
+[Unreleased]: https://github.com/bhayanak/skillfuse/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/bhayanak/skillfuse/releases/tag/v0.1.0
