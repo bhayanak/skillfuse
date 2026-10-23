@@ -72,7 +72,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - uses: astral-sh/setup-uv@v5
+    - uses: astral-sh/setup-uv@v7
     - name: Install SkillFuse
       shell: bash
       run: |
