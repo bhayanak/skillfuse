@@ -12,6 +12,7 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from skillfuse.sandbox.tls import TRUST_ENV_VARS
 from skillfuse.sandbox.workspace import FakeWorkspace
 
 SHIMS_DIR = Path(__file__).parent / "shims"
@@ -35,8 +36,8 @@ class RunnerConfig:
     timeout: float = 60.0
     backend: str = "auto"  # auto | subprocess | docker
     cpu_seconds: int = 30
-    memory_bytes: int = 1 << 30
-    max_procs: int = 128
+    memory_bytes: int = 4 << 30
+    max_procs: int = 128  # enforced by the docker backend (--pids-limit)
     forward_http_to_mock: bool = True
     docker_image: str = DOCKER_IMAGE
     extra_env: dict[str, str] = field(default_factory=dict)
@@ -62,7 +63,13 @@ def _docker_ok() -> bool:
 
 
 def sandbox_env(
-    ws: FakeWorkspace, events: Path, mock_addr: str | None, bin_dir: Path, extra: dict[str, str]
+    ws: FakeWorkspace,
+    events: Path,
+    mock_addr: str | None,
+    bin_dir: Path,
+    extra: dict[str, str],
+    *,
+    ca_file: Path | None = None,
 ) -> dict[str, str]:
     env: dict[str, str] = {
         "HOME": str(ws.home),
@@ -101,6 +108,9 @@ def sandbox_env(
                 "NO_PROXY": "127.0.0.1,localhost",
             }
         )
+    if ca_file is not None:
+        # Trust the recorder's ephemeral CA so HTTPS bodies are captured rather than failing the handshake.
+        env.update(dict.fromkeys(TRUST_ENV_VARS, str(ca_file)))
     env.update(ws.canaries.env)
     env.update(extra)
     return env
@@ -110,14 +120,10 @@ def _limits(cfg: RunnerConfig) -> None:  # pragma: no cover - runs in the child
     with contextlib.suppress(ValueError, OSError):
         resource.setrlimit(resource.RLIMIT_CPU, (cfg.cpu_seconds, cfg.cpu_seconds + 5))
     if sys.platform != "darwin":
-        # RLIMIT_AS breaks many runtimes on macOS; RLIMIT_NPROC is per-user there and would starve the child.
+        # RLIMIT_AS breaks many runtimes on macOS. RLIMIT_NPROC is deliberately left alone: it is a per-UID
+        # count of every task the user owns, so capping it makes fork() fail on busy hosts such as CI runners.
         with contextlib.suppress(ValueError, OSError):
             resource.setrlimit(resource.RLIMIT_AS, (cfg.memory_bytes, cfg.memory_bytes))
-        with contextlib.suppress(ValueError, OSError):
-            soft, hard = resource.getrlimit(resource.RLIMIT_NPROC)
-            limit = max(cfg.max_procs, 512)
-            if soft == resource.RLIM_INFINITY or soft > limit:
-                resource.setrlimit(resource.RLIMIT_NPROC, (limit, hard))
     with contextlib.suppress(ValueError, OSError):
         resource.setrlimit(resource.RLIMIT_FSIZE, (256 << 20, 256 << 20))
     os.setsid()

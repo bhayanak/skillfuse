@@ -148,8 +148,8 @@ def detonate(
         before = ws.snapshot()
         commands = plan_commands(pkg, ws.skill_dir, include_markdown_blocks=include_markdown_blocks)
         if backend == "subprocess":
-            with MockHttpRecorder(events) as mock:
-                env = sandbox_env(ws, events, mock.address, bin_dir, cfg.extra_env)
+            with MockHttpRecorder(events, ca_dir=root / "ca") as mock:
+                env = sandbox_env(ws, events, mock.address, bin_dir, cfg.extra_env, ca_file=mock.ca_file)
                 for cmd, _src in commands:
                     det.executions.append(run_subprocess(cmd, ws, env, cfg))
         else:

@@ -26,6 +26,14 @@ class CanarySet:
     def values(self) -> list[str]:
         return [c.value for c in self.canaries]
 
+    def decoy(self, name: str) -> str:
+        """Return the decoy value registered under *name*. Decoys are random, never-valid look-alikes."""
+        for c in self.canaries:
+            if c.name == name:
+                return c.value
+        msg = f"unknown canary {name!r}"
+        raise KeyError(msg)
+
     def find(self, text: str) -> list[Canary]:
         return [c for c in self.canaries if c.value in text]
 

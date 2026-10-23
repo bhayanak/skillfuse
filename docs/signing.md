@@ -24,7 +24,7 @@ skillfuse verify ./skill [-t .skillfuse-keys/skillfuse.pub] [--log transparency.
 - `.skillfuse/signature.json` — a small human-readable summary.
 
 `verify` recomputes the digest, checks the DSSE signature against `--trusted-key`s (or the embedded public key
-when none are given, reporting `trusted: null`), and optionally requires inclusion in a transparency log.
+when none are given, reporting `signer_known: null`), and optionally requires inclusion in a transparency log.
 
 ## Reproducible packaging
 

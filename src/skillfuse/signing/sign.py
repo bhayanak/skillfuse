@@ -43,7 +43,7 @@ class VerifyResult:
     expected_digest: str | None = None
     key_id: str | None = None
     publisher: str | None = None
-    trusted: bool | None = None
+    signer_known: bool | None = None  # None when no trusted keys were supplied
     errors: list[str] = field(default_factory=list)
     statement: dict[str, Any] | None = None
 
@@ -159,13 +159,13 @@ def verify_package(root: Path, *, trusted_keys: list[ed25519.Ed25519PublicKey] |
     if expected and expected != digest:
         errors.append(f"content digest mismatch: attestation {expected} != current {digest}")
     publisher = stmt.get("predicate", {}).get("skill", {}).get("publisher")
-    trusted = (verified_kid in trusted_map) if trusted_keys else None
+    signer_known = (verified_kid in trusted_map) if trusted_keys else None
     ok = (
         verified_kid is not None
         and expected == digest
         and not [e for e in errors if "mismatch" in e or "invalid" in e]
     )
-    if trusted_keys and not trusted:
+    if trusted_keys and not signer_known:
         ok = False
         errors.append("signer key is not in the trusted key set")
     return VerifyResult(
@@ -174,7 +174,7 @@ def verify_package(root: Path, *, trusted_keys: list[ed25519.Ed25519PublicKey] |
         expected_digest=expected,
         key_id=verified_kid,
         publisher=publisher,
-        trusted=trusted,
+        signer_known=signer_known,
         errors=errors,
         statement=stmt,
     )

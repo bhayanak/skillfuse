@@ -45,5 +45,8 @@ docker: ## Build the container image
 docs-rules: ## Regenerate docs/rules.md from the registry
 	$(UV) run python scripts/gen_rules_doc.py > docs/rules.md
 
+pin-actions: ## Re-pin GitHub Actions to the latest commit SHA of their tracked major (needs gh)
+	$(UV) run python scripts/pin_actions.py
+
 clean: ## Remove build/test artefacts
 	rm -rf dist build .pytest_cache .mypy_cache .ruff_cache htmlcov .coverage coverage.xml junit.xml *.sarif

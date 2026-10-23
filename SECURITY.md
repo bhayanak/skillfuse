@@ -7,7 +7,8 @@ it scans.
 
 | Version | Supported |
 |---|---|
-| 0.1.x | ✅ |
+| 0.2.x | ✅ |
+| 0.1.x | ❌ (upgrade to 0.2.x) |
 
 ## Reporting a vulnerability
 

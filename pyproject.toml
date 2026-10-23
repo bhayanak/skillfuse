@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "skillfuse"
-version = "0.1.0"
+version = "0.2.0"
 description = "Supply-chain security for AI agent skills: scan, infer capabilities, detonate, sign, lock, and broker."
 readme = "README.md"
 license = "Apache-2.0"
@@ -106,6 +106,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "S105", "S106", "S108", "ANN", "PLR", "S", "T20", "RUF001", "RUF003"]
 "src/skillfuse/cli/**" = ["T20"]
+"scripts/**" = ["T20", "S101"]
 "src/skillfuse/sandbox/shims/**" = ["ALL"]
 "src/skillfuse/rules/hidden_content.py" = ["RUF001"]  # confusable characters are the subject matter
 

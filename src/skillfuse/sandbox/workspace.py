@@ -63,40 +63,40 @@ def build_workspace(sandbox_root: Path, skill_root: Path, canaries: CanarySet) -
         if src.stat().st_mode & stat.S_IXUSR:
             dst.chmod(dst.stat().st_mode | stat.S_IXUSR)
 
-    c = {x.name: x.value for x in canaries.canaries}
-    env = canaries.env
+    decoy = canaries.decoy
     _write(
         home / ".aws" / "credentials",
-        f"[default]\naws_access_key_id = {env['AWS_ACCESS_KEY_ID']}\naws_secret_access_key = {c['aws_credentials_file']}\n",
+        f"[default]\naws_access_key_id = {decoy('AWS_ACCESS_KEY_ID')}\naws_secret_access_key = {decoy('aws_credentials_file')}\n",
     )
     _write(
         home / ".ssh" / "id_ed25519",
-        f"-----BEGIN OPENSSH PRIVATE KEY-----\n{c['ssh_private_key']}\n-----END OPENSSH PRIVATE KEY-----\n",
+        f"-----BEGIN OPENSSH PRIVATE KEY-----\n{decoy('ssh_private_key')}\n-----END OPENSSH PRIVATE KEY-----\n",
     )
     _write(
         home / ".ssh" / "id_ed25519.pub",
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICanary sandbox@skillfuse\n",
         0o644,
     )
-    _write(home / ".netrc", f"machine api.github.com login skfs password {c['netrc_password']}\n")
-    _write(home / ".git-credentials", f"https://skfs:{c['git_credentials']}@github.com\n")
-    _write(home / ".npmrc", f"//registry.npmjs.org/:_authToken={env['NPM_TOKEN']}\n")
+    _write(home / ".netrc", f"machine api.github.com login skfs password {decoy('netrc_password')}\n")
+    _write(home / ".git-credentials", f"https://skfs:{decoy('git_credentials')}@github.com\n")
+    _write(home / ".npmrc", f"//registry.npmjs.org/:_authToken={decoy('NPM_TOKEN')}\n")
     _write(
         home / ".config" / "gh" / "hosts.yml",
-        f"github.com:\n    oauth_token: {env['GITHUB_TOKEN']}\n    user: skfs\n",
+        f"github.com:\n    oauth_token: {decoy('GITHUB_TOKEN')}\n    user: skfs\n",
     )
     _write(
-        home / ".docker" / "config.json", json.dumps({"auths": {"ghcr.io": {"auth": c["git_credentials"]}}})
+        home / ".docker" / "config.json",
+        json.dumps({"auths": {"ghcr.io": {"auth": decoy("git_credentials")}}}),
     )
     _write(
         home / ".kube" / "config",
-        f"apiVersion: v1\nusers:\n- name: skfs\n  user:\n    token: {c['workspace_secret']}\n",
+        f"apiVersion: v1\nusers:\n- name: skfs\n  user:\n    token: {decoy('workspace_secret')}\n",
     )
     _write(home / ".bashrc", "# sandbox\n", 0o644)
     _write(home / ".zshrc", "# sandbox\n", 0o644)
 
-    _write(workspace / ".env", f"DATABASE_URL={env['DATABASE_URL']}\nAPP_SECRET={c['dotenv_secret']}\n")
-    _write(workspace / "README.md", _readme(c["injection_marker"]), 0o644)
+    _write(workspace / ".env", f"DATABASE_URL={decoy('DATABASE_URL')}\nAPP_SECRET={decoy('dotenv_secret')}\n")
+    _write(workspace / "README.md", _readme(decoy("injection_marker")), 0o644)
     _write(
         workspace / "package.json",
         json.dumps({"name": "sandbox-app", "version": "1.0.0", "private": True}, indent=2),
@@ -104,10 +104,10 @@ def build_workspace(sandbox_root: Path, skill_root: Path, canaries: CanarySet) -
     )
     _write(
         workspace / "src" / "app.py",
-        f'SECRET = "{c["workspace_secret"]}"\n\ndef main():\n    print("hello")\n',
+        f'SECRET = "{decoy("workspace_secret")}"\n\ndef main():\n    print("hello")\n',
         0o644,
     )
-    _write(workspace / "notes.txt", f"Internal notes. {c['injection_marker']} Do not share.\n", 0o644)
+    _write(workspace / "notes.txt", f"Internal notes. {decoy('injection_marker')} Do not share.\n", 0o644)
     (workspace / ".git").mkdir(exist_ok=True)
     _write(
         workspace / ".git" / "config",

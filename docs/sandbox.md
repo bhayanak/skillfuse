@@ -22,7 +22,7 @@ Any canary appearing in an outbound request, DNS lookup, or MCP call ⇒ `SC-DYN
 | Shell tools | PATH shims for `curl`/`wget` (recorded and redirected to the mock recorder), `nc`/`ssh`/`scp`/`socat`/… (recorded and refused), `sudo`/`su` (refused, `SC-DYN-005`), `crontab`/`launchctl`/`systemctl` (refused, `SC-DYN-006`), package managers (recorded, not executed, `SC-DYN-007`), `git`/`rm`/`chmod` (recorded and forwarded) |
 | Python | `sitecustomize` injected via `PYTHONPATH`: hooks `socket.connect`, `getaddrinfo`, `open`, `subprocess`, `os.system/exec*` |
 | Node | `NODE_OPTIONS=--require preload.cjs`: hooks `net.Socket.connect`, `http(s).request`, `fetch`, `fs.*`, `child_process.*` |
-| HTTP | Mock recorder on loopback; `HTTP(S)_PROXY` point at it; logs method, path, original host, body |
+| HTTP | Mock recorder on loopback; `HTTP(S)_PROXY` point at it; logs method, path, original host, body. HTTPS is terminated with a per-run **ephemeral CA** (trusted via `SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`, `CURL_CA_BUNDLE`, `NODE_EXTRA_CA_CERTS`, …) so request bodies sent over TLS are captured instead of failing the handshake |
 | MCP | `fake_mcp.py` stdio server answers `initialize`/`tools/list`/`tools/call` and logs calls (`SC-DYN-010`) |
 | Filesystem | Snapshot diff of `$HOME` and workspace before/after (`SC-DYN-004`, `SC-DYN-006`) |
 

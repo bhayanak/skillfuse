@@ -72,37 +72,50 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - uses: astral-sh/setup-uv@v5
+    - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
     - name: Install SkillFuse
       shell: bash
+      env:
+        INPUT_VERSION: ${{ inputs.version }}
+        ACTION_PATH: ${{ github.action_path }}
       run: |
-        if [ "${{ inputs.version }}" = "local" ]; then
-          uv tool install --from "${{ github.action_path }}" skillfuse
+        if [ "$INPUT_VERSION" = "local" ]; then
+          uv tool install --from "$ACTION_PATH" skillfuse
         else
-          uv tool install "skillfuse==${{ inputs.version }}"
+          uv tool install "skillfuse==$INPUT_VERSION"
         fi
         skillfuse --version
     - name: Run SkillFuse CI gate
       id: run
       shell: bash
+      env:
+        INPUT_PATH: ${{ inputs.path }}
+        INPUT_SARIF: ${{ inputs.sarif }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_POLICY: ${{ inputs.policy }}
+        INPUT_CONFIG: ${{ inputs.config }}
+        INPUT_LOCK: ${{ inputs.lock }}
+        INPUT_FAIL_ON_HEURISTIC: ${{ inputs.fail-on-heuristic }}
+        INPUT_FAIL_ON_QUARANTINE: ${{ inputs.fail-on-quarantine }}
+        INPUT_REQUIRE_LOCK: ${{ inputs.require-lock }}
+        INPUT_DETONATE: ${{ inputs.detonate }}
       run: |
         set +e
-        args=("${{ inputs.path }}" --sarif "${{ inputs.sarif }}" --fail-on "${{ inputs.fail-on }}")
-        [ -n "${{ inputs.policy }}" ] && args+=(--policy "${{ inputs.policy }}")
-        [ -n "${{ inputs.config }}" ] && args+=(--config "${{ inputs.config }}")
-        [ -n "${{ inputs.lock }}" ] && args+=(--lock "${{ inputs.lock }}")
-        [ "${{ inputs.fail-on-heuristic }}" = "true" ] && args+=(--fail-on-heuristic)
-        [ "${{ inputs.fail-on-quarantine }}" = "true" ] && args+=(--fail-on-quarantine)
-        [ "${{ inputs.require-lock }}" = "true" ] && args+=(--require-lock)
-        [ "${{ inputs.detonate }}" = "true" ] && args+=(--detonate)
+        args=("$INPUT_PATH" --sarif "$INPUT_SARIF" --fail-on "$INPUT_FAIL_ON")
+        [ -n "$INPUT_POLICY" ] && args+=(--policy "$INPUT_POLICY")
+        [ -n "$INPUT_CONFIG" ] && args+=(--config "$INPUT_CONFIG")
+        [ -n "$INPUT_LOCK" ] && args+=(--lock "$INPUT_LOCK")
+        [ "$INPUT_FAIL_ON_HEURISTIC" = "true" ] && args+=(--fail-on-heuristic)
+        [ "$INPUT_FAIL_ON_QUARANTINE" = "true" ] && args+=(--fail-on-quarantine)
+        [ "$INPUT_REQUIRE_LOCK" = "true" ] && args+=(--require-lock)
+        [ "$INPUT_DETONATE" = "true" ] && args+=(--detonate)
         skillfuse ci "${args[@]}"
         code=$?
         echo "exit-code=$code" >> "$GITHUB_OUTPUT"
-        grep -q '^exit-code=' "$GITHUB_OUTPUT" || true
         exit $code
     - name: Upload SARIF
       if: always() && inputs.upload-sarif == 'true' && hashFiles(inputs.sarif) != ''
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
       with:
         sarif_file: ${{ inputs.sarif }}
         category: skillfuse

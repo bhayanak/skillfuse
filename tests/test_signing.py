@@ -113,9 +113,9 @@ class TestSignVerify:
         assert v.ok and v.signed
         assert v.key_id == pair.key_id
         assert v.publisher == "acme"
-        assert v.trusted is None
+        assert v.signer_known is None
         v2 = verify_package(skill_dir, trusted_keys=[load_public_key(pub.read_bytes())])
-        assert v2.ok and v2.trusted
+        assert v2.ok and v2.signer_known
         other = generate_keypair()
         v3 = verify_package(skill_dir, trusted_keys=[load_public_key(other.public_pem)])
         assert not v3.ok

@@ -72,7 +72,7 @@ OutputOpt = Annotated[
 
 def _version(value: bool) -> None:
     if value:
-        console.print(f"skillfuse {__version__}")
+        typer.echo(f"skillfuse {__version__}")
         raise typer.Exit()
 
 
@@ -504,7 +504,7 @@ def verify(
                     "expected": res.expected_digest,
                     "keyid": res.key_id,
                     "publisher": res.publisher,
-                    "trusted": res.trusted,
+                    "signer_known": res.signer_known,
                     "log_included": included,
                     "errors": res.errors,
                 },
@@ -518,7 +518,7 @@ def verify(
         )
         console.print(f"  digest:    {res.digest}")
         console.print(
-            f"  keyid:     {res.key_id or '-'}   publisher: {res.publisher or '-'}   trusted: {res.trusted}"
+            f"  keyid:     {res.key_id or '-'}   publisher: {res.publisher or '-'}   signer known: {res.signer_known}"
         )
         if included is not None:
             console.print(f"  log:       {'included' if included else 'NOT included'}")

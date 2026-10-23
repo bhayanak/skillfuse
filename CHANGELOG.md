@@ -6,6 +6,29 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-23
+
+### Fixed
+- Sandbox: HTTPS traffic is now captured. The mock recorder terminates TLS with a per-detonation ephemeral CA
+  (trusted through `SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`, `CURL_CA_BUNDLE`, `NODE_EXTRA_CA_CERTS`, …), so clients
+  such as `requests` no longer abort at the `CONNECT` handshake and canary exfiltration over HTTPS is detected.
+- Sandbox: stop lowering `RLIMIT_NPROC` in the child. The limit is per-UID (every thread the user owns counts), so
+  capping it made `fork()` fail on busy hosts such as CI runners. The Docker backend's `--pids-limit` remains.
+- Sandbox: default address-space cap raised to 4 GiB so V8/JVM virtual reservations fit.
+- `--version` prints plain text (Rich highlighting under `FORCE_COLOR` broke machine parsing).
+
+### Changed
+- `skillfuse verify` reports `signer_known` (was `trusted`): whether the signer's key is in the supplied
+  trusted-key set; `null` when no trusted keys were given.
+- CI self-scan uploads the benign corpus SARIF only; the intentionally malicious corpus is kept as a build
+  artefact instead of populating the Security tab.
+
+### Security
+- All GitHub Actions are pinned to commit SHAs (`scripts/pin_actions.py`, `make pin-actions`); composite action
+  inputs are passed through environment variables instead of being interpolated into shell.
+- Docker base images pinned by digest; Scorecard action updated to v2.5.0 (the v2.4.0 image was removed from
+  the deprecated `gcr.io` registry); CodeQL ignores `tests/fixtures` (deliberately malicious test data).
+
 ## [0.1.0] - 2026-10-23
 
 ### Added
@@ -29,5 +52,6 @@ All notable changes to this project are documented here. The format follows
   Dependabot, and a release pipeline producing SBOM, Sigstore signatures, SLSA provenance, PyPI (trusted publishing)
   and GHCR images.
 
-[Unreleased]: https://github.com/bhayanak/skillfuse/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/bhayanak/skillfuse/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/bhayanak/skillfuse/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/bhayanak/skillfuse/releases/tag/v0.1.0
