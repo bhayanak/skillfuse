@@ -72,7 +72,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+    - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
     - name: Install SkillFuse
       shell: bash
       env:
@@ -115,7 +115,7 @@ runs:
         exit $code
     - name: Upload SARIF
       if: always() && inputs.upload-sarif == 'true' && hashFiles(inputs.sarif) != ''
-      uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+      uses: github/codeql-action/upload-sarif@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4.39.4
       with:
         sarif_file: ${{ inputs.sarif }}
         category: skillfuse
